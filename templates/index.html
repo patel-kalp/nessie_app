@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Flask App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .nav-link.active {
+            font-weight: bold;
+        }
+        .dark-mode {
+            background-color: #333;
+            color: #fff;
+        }
+        .customer-name-field {
+            color: #000;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-weight: normal;
+            padding: 0;
+            margin: 0;
+        }
+        .btn {
+            position: relative;
+            padding: 0;
+            width: 50px; /* Adjust the width as needed */
+            height: 30px; /* Adjust the height as needed */
+            border: none;
+            background: transparent;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc; /* Default color when off */
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 30px; /* Rounded slider */
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 30px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #000; /* Color when on */
+        }
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+        .top-navbar {
+            text-align: center; 
+            display: flex; 
+            justify-content: center;
+        }
+
+        /* Style the table */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        /* Style the table headers (th) */
+        th {
+            background-color: #007BFF; /* Dark blue header background color */
+            color: white; /* White text color */
+            padding: 10px;
+            text-align: left;
+        }
+
+        /* Style the table rows (odd rows with light blue, even rows with white) */
+        tr:nth-child(odd) {
+            background-color: #E1F2FE; /* Light blue background color for odd rows */
+        }
+
+        /* Style the table data cells (td) */
+        td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ccc; /* Optional: Add a border between rows */
+        }
+
+        /* Style the pagination row */
+        #paginationRow {
+            text-align: center;
+            padding: 10px;
+        }
+
+        /* Style the Previous and Next buttons */
+        #previousButton,
+        #nextButton {
+            background-color: #007BFF; /* Dark blue background color for buttons */
+            color: white; /* White text color */
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        #previousButton:disabled,
+        #nextButton:disabled {
+            background-color: #ccc; /* Gray out disabled buttons */
+            cursor: not-allowed;
+        }
+
+        /* Add CSS for the animation */
+        @keyframes jiggle {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Style for the custom validation message */
+        .custom-validation-message {
+            color: red;
+            font-size: 12px;
+            position: absolute;
+            margin-top: 4px;
+            margin-left: 5px;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity .5s linear;
+        }
+
+        /* Style for the error message div */
+        .error-message {
+            background-color: lightcoral;
+            color: white;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="curr_customer_div" class="top-navbar" onmouseover="showRemoveCustomerOption()" onmouseout="showCustomerName()" onclick="removeCustomerSelection()">
+        <span id="current_customer_name"></span>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Home</a>
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="/atms{% if customer_name %}?customer_name={{ customer_name }}{% endif %}">ATMs</a></li>
+            <li class="nav-item"><a class="nav-link" href="/customers{% if customer_name %}?customer_name={{ customer_name }}{% endif %}">Customers</a></li>
+            <li class="nav-item"><a class="nav-link" href="/accounts{% if customer_name %}?customer_name={{ customer_name }}{% endif %}">Accounts/Bills</a></li>
+            <li class="nav-item"><a class="nav-link" href="/purchases{% if customer_name %}?customer_name={{ customer_name }}{% endif %}">Purchases</a></li>
+            <li class="nav-item"><a class="nav-link" href="/deposits{% if customer_name %}?customer_name={{ customer_name }}{% endif %}">Deposits</a></li>
+            <li class="nav-item"><a class="nav-link" href="/enterprise">Enterprise</a></li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <!-- <span class="nav-link">Customer Name: {% if customer_name %}{{ customer_name }}{% else %}<em>Not Set</em>{% endif %}</span> -->
+                <label class="switch">
+                    <input hidden type="checkbox" id="darkModeSwitch">
+                    <span class="slider round"></span>
+                </label>
+            </li>
+        </ul>
+    </nav>
+    <div class="container mt-4">
+        {% block content %}{% endblock %}
+    </div>
+    <script>
+        showCustomerName()
+
+        function showCustomerName() {
+            // Show customer name at the top
+            if(localStorage.getItem('customer_name')) {
+                document.getElementById('current_customer_name').innerText = "Welcome " + localStorage.getItem('customer_name') + "!";
+                document.getElementById('curr_customer_div').style.backgroundColor = "#1AB248";
+            } else {
+                document.getElementById('current_customer_name').innerText = "Please select a customer"
+                document.getElementById('curr_customer_div').style.backgroundColor = "";
+                document.getElementById('curr_customer_div').style.cursor = "not-allowed";
+            }
+        }
+
+        function showRemoveCustomerOption() {
+            if(localStorage.getItem('customer_name')) {
+                document.getElementById('curr_customer_div').style.backgroundColor = "#D62110";
+                document.getElementById('curr_customer_div').style.cursor = "pointer";
+                document.getElementById('current_customer_name').innerText = "Remove customer selection";
+            }
+        }
+
+        function removeCustomerSelection() {
+            if(localStorage.getItem('customer_name')) {
+                localStorage.removeItem("customer_name");
+                document.getElementById('curr_customer_div').style.backgroundColor = "";
+                currentPage = window.location.href.substring(window.location.href.indexOf("?"))
+                console.log(window.location.href.substring(window.location.href.lastIndexOf("/")+1,window.location.href.indexOf("?")))
+            }
+        }
+
+        // Add a script to set the active tab based on the current route
+        const path = window.location.pathname;
+        const links = document.querySelectorAll('.navbar-nav .nav-link');
+        links.forEach(link => {
+            if (link.getAttribute('href') === path) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+
+        // Function to toggle dark mode
+        function toggleDarkMode() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+            
+            // Store the dark mode preference in local storage
+            const isDarkMode = body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+        }
+
+        // Event listener for the dark mode switch
+        const darkModeSwitch = document.getElementById('darkModeSwitch');
+        darkModeSwitch.addEventListener('change', toggleDarkMode);
+
+        // Check if dark mode preference is stored in local storage and apply it
+        const storedDarkMode = localStorage.getItem('darkMode');
+        if (storedDarkMode === 'true') {
+            toggleDarkMode(); // Apply dark mode if it was previously enabled
+            darkModeSwitch.checked = true; // Check the switch input
+        }
+
+        // Function to check localStorage for customer_name and append it to the URL
+        function appendCustomerNameToURL(link) {
+            const customerName = localStorage.getItem('customer_name');
+            if (customerName) {
+                link.href += `?customer_name=${customerName}`;
+            }
+        }
+
+        // Add event listeners to all navbar links
+        const navbarLinks = document.querySelectorAll('.navbar-nav .nav-link');
+        navbarLinks.forEach(link => {
+            link.addEventListener('click', function (event) {
+                appendCustomerNameToURL(this);
+            });
+        });
+    </script>
+</body>
+</html>

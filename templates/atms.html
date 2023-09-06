@@ -1,0 +1,104 @@
+{% extends "index.html" %}
+
+{% block content %}
+    <div class="container">
+        <div class="row mt-4">
+            <table id="atms_table" class="table">
+                <thead style="background-color: darkgreen;">
+                    <tr>
+                        <th>Name</th>
+                        <th>Geocode</th>
+                        <th>Accessibility</th>
+                        <th>Hours</th>
+                        <th>Address</th>
+                        <th>Languages</th>
+                        <th>Amount Left</th>
+                    </tr>
+                </thead>
+                <tbody id="atmTableBody" style="background-color: lightblue;">
+                    <!-- Table rows will be added here dynamically -->
+                </tbody>
+                <tfoot>
+                    <tr>
+                      <td colspan="8" id="paginationRow">
+                        <button id="previousButton">Previous</button>
+                        <span id="currentPageNumber" style="font-weight: bold;">Page 1</span>
+                        <button id="nextButton">Next</button>
+                      </td>
+                    </tr>
+                  </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Define global variables for pagination
+        let currentPage = 1;
+        let totalPages = 1;
+
+        // Function to load ATM data based on page number
+        function loadATMData(page) {
+            fetch(`http://api.nessieisreal.com/atms?key={{api_key}}&page=${page}`)
+                .then(response => response.json())
+                .then(data => {
+                // Update the table rows with new data
+                const tbody = document.querySelector("#atms_table tbody");
+                tbody.innerHTML = ""; // Clear existing rows
+
+                data.data.forEach(atm => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${atm.name}</td>
+                        <td>${atm.geocode.lat}, ${atm.geocode.lng}</td>
+                        <td>${atm.accessibility ? 'Yes' : 'No'}</td>
+                        <td>${atm.hours.join(', ')}</td>
+                        <td>${atm.address.street_number} ${atm.address.street_name}, ${atm.address.city}, ${atm.address.state} ${atm.address.zip}</td>
+                        <td>${atm.language_list.join(', ')}</td>
+                        <td>${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(atm.amount_left)}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+            // Update pagination information
+            currentPage = page;
+            totalPages = totalPages + 1;
+
+            // Enable/disable Previous and Next buttons based on current page
+            const previousButton = document.getElementById("previousButton");
+            const nextButton = document.getElementById("nextButton");
+
+            if (currentPage === 1) {
+                previousButton.disabled = true;
+            } else {
+                previousButton.disabled = false;
+            }
+
+            if (currentPage === totalPages) {
+                nextButton.disabled = true;
+            } else {
+                nextButton.disabled = false;
+            }
+            })
+            .catch(error => {
+            console.error("Error fetching data:", error);
+            });
+        }
+
+        // Initial page load
+        loadATMData(currentPage);
+
+        // Previous button click event
+        const previousButton = document.getElementById("previousButton");
+        previousButton.addEventListener("click", () => {
+            document.getElementById('currentPageNumber').textContent = "Page " + (currentPage - 1)
+            loadATMData(currentPage - 1);
+        });
+
+        // Next button click event
+        const nextButton = document.getElementById("nextButton");
+        nextButton.addEventListener("click", () => {
+            document.getElementById('currentPageNumber').textContent = "Page " + (currentPage + 1)
+            loadATMData(currentPage + 1);
+        });
+    </script>
+{% endblock %}

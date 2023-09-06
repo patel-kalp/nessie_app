@@ -1,0 +1,199 @@
+{% extends "index.html" %}
+
+{% block content %}
+    <!-- <div class="text-center"> -->
+        <div class="container mt-4">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title text-center" style="color:rgb(60, 115, 219)">Address Form</h1>
+                    <div class="error-message" id="errorMessage" style="margin: 20px;">Invalid State Abbreviation</div>
+                    <form id="addressForm" onsubmit="return validateForm(event)">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <input type="text" class="form-control" id="streetNumber" name="streetNumber" placeholder="Street Number" required>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <input type="text" class="form-control" id="streetName" name="streetName" placeholder="Street Name" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <input type="text" class="form-control" id="city" name="city" placeholder="City" required>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <input type="text" class="form-control" id="state" name="state" placeholder="State (e.g., FL, PA, VA)" required>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <input type="text" class="form-control" id="zip" name="zip" placeholder="ZIP Code" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary btn-block">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add a button to set customer name to "John Doe" -->
+        <!-- <button class="btn btn-primary mt-3" onclick="setCustomerNameToJohnDoe()">Test</button> -->
+    <!-- </div> -->
+
+    <script>
+        function validateForm(event) {
+            event.preventDefault(); // Prevent the default form submission behavior
+
+            const stateField = document.getElementById("state");
+            const stateValue = stateField.value.trim().toUpperCase();
+
+            const validStateAbbreviations = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"];
+
+            const zipField = document.getElementById("zip");
+            const zipValue = zipField.value.trim();
+
+            if (!validStateAbbreviations.includes(stateValue)) {
+                stateField.setCustomValidity("Enter a valid state abbreviation");
+                stateField.style.animation = "jiggle 0.5s ease-in-out";
+                stateField.classList.add("custom-error");
+                stateField.focus();
+
+                // Show the error message
+                document.getElementById("errorMessage").style.display = "block";
+
+                // Remove custom error class, animation, and error message after 5 seconds
+                setTimeout(() => {
+                    stateField.setCustomValidity("");
+                    stateField.style.animation = "none";
+                    stateField.classList.remove("custom-error");
+                    document.getElementById("errorMessage").style.display = "none";
+                }, 1000);
+
+                return false;
+            }
+
+            if (!/^\d{5}$/.test(zipValue)) {
+                zipField.setCustomValidity("Invalid ZIP code");
+                zipField.reportValidity(); // Display the custom validity message for ZIP code
+                zipField.style.animation = "jiggle 0.5s ease-in-out";
+                zipField.classList.add("custom-error");
+                zipField.focus();
+
+                // Remove custom error class and animation for ZIP code after 5 seconds
+                setTimeout(() => {
+                    zipField.setCustomValidity("");
+                    zipField.style.animation = "none";
+                    zipField.classList.remove("custom-error");
+                }, 1000);
+
+                return false;
+            } else {
+                // Reset custom validity and animation for ZIP code when it's valid
+                zipField.setCustomValidity("");
+                zipField.style.animation = "none";
+                zipField.classList.remove("custom-error");
+            }
+
+            // Call the function to log form field values to the console
+            logFormValues();
+            submitForm();
+
+            // Reset the form to clear all fields
+            document.getElementById("addressForm").reset();
+
+            return true;
+        }
+
+        function submitForm() {
+            // Get the form input values
+            const firstName = document.getElementById("firstName").value;
+            const lastName = document.getElementById("lastName").value;
+            const streetNumber = document.getElementById("streetNumber").value;
+            const streetName = document.getElementById("streetName").value;
+            const state = document.getElementById("state").value;
+            const city = document.getElementById("city").value;
+            const zip = document.getElementById("zip").value;
+
+            // Construct the API URL with query parameters
+            const apiUrl = `http://api.nessieisreal.com/customers?key={{api_key}}`;
+            console.log(apiUrl);
+
+            // Construct the request body
+            const requestBody = {
+                first_name: firstName,
+                last_name: lastName,
+                address: {
+                    street_number: streetNumber,
+                    street_name: streetName,
+                    city: city,
+                    state: state,
+                    zip: zip
+                }
+            };
+
+            // Make the API POST request
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the API response data here
+                console.log("API Response:", data);
+            })
+            .catch(error => {
+                console.error("Error making API request:", error);
+            });
+        }
+
+        // Function to log form field values to the console
+        function logFormValues() {
+            const firstName = document.getElementById("firstName").value;
+            const lastName = document.getElementById("lastName").value;
+            const streetNumber = document.getElementById("streetNumber").value;
+            const streetName = document.getElementById("streetName").value;
+            const city = document.getElementById("city").value;
+            const state = document.getElementById("state").value;
+            const zip = document.getElementById("zip").value;
+
+            console.log("First Name:", firstName);
+            console.log("Last Name:", lastName);
+            console.log("Street Number:", streetNumber);
+            console.log("Street Name:", streetName);
+            console.log("City:", city);
+            console.log("State:", state);
+            console.log("ZIP Code:", zip);
+        }
+
+        // JavaScript function to set customer_name to "John Doe"
+        function setCustomerNameToJohnDoe() {
+            // Update the URL with the new customer_name
+            const newCustomerName = "Jake Doe";
+            // Store the customer_name in localStorage
+            localStorage.setItem('customer_name', newCustomerName);
+            // Append customer_name to the URL and navigate to the "ATMs" page
+            const currentURL = window.location.href;
+            const updatedURL = updateQueryStringParameter(currentURL, "customer_name", newCustomerName);
+            window.location.href = updatedURL;
+        }
+
+        // Function to update a query string parameter in the URL
+        function updateQueryStringParameter(uri, key, value) {
+            const re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+            const separator = uri.indexOf("?") !== -1 ? "&" : "?";
+            if (uri.match(re)) {
+                return uri.replace(re, "$1" + key + "=" + value + "$2");
+            } else {
+                return uri + separator + key + "=" + value;
+            }
+        }
+    </script>
+{% endblock %}
