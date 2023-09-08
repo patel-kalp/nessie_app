@@ -13,5 +13,5 @@ http://api.nessieisreal.com/
 3. Create a file called `.env` in the main project directory and add your API_KEY. The `.env` file should look like:  
 `API_KEY=<your_api_key>`  
 4. Start the Flask app!   
-`python app.py` (you might have to do `python3.8 app.py`)
+`python app.py` (you might have to do `python3 app.py` or `python3.8 app.py`)
 
