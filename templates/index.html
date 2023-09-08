@@ -174,16 +174,14 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="/">Home</a>
         <ul class="navbar-nav">
-            <li class="nav-item"><a class="nav-link" href="/atms{% if customer_name %}?customer_name={{ customer_name }}{% endif %}">ATMs</a></li>
-            <li class="nav-item"><a class="nav-link" href="/customers{% if customer_name %}?customer_name={{ customer_name }}{% endif %}">Customers</a></li>
-            <li class="nav-item"><a class="nav-link" href="/accounts{% if customer_name %}?customer_name={{ customer_name }}{% endif %}">Accounts/Bills</a></li>
-            <li class="nav-item"><a class="nav-link" href="/purchases{% if customer_name %}?customer_name={{ customer_name }}{% endif %}">Purchases</a></li>
-            <li class="nav-item"><a class="nav-link" href="/deposits{% if customer_name %}?customer_name={{ customer_name }}{% endif %}">Deposits</a></li>
+            <li class="nav-item"><a class="nav-link" href="/atms{% if customer_id %}?customer_id={{ customer_id }}{% endif %}{% if account_id %}?account_id={{ account_id }}{% endif %}">ATMs</a></li>
+            <li class="nav-item"><a class="nav-link" href="/customers{% if customer_id %}?customer_id={{ customer_id }}{% endif %}{% if account_id %}?account_id={{ account_id }}{% endif %}">Customers</a></li>
+            <li class="nav-item"><a class="nav-link" href="/accounts{% if customer_id %}?customer_id={{ customer_id }}{% endif %}{% if account_id %}?account_id={{ account_id }}{% endif %}">Accounts</a></li>
+            <li class="nav-item"><a class="nav-link" href="/activity{% if customer_id %}?customer_id={{ customer_id }}{% endif %}{% if account_id %}?account_id={{ account_id }}{% endif %}">Activity</a></li>
             <li class="nav-item"><a class="nav-link" href="/enterprise">Enterprise</a></li>
         </ul>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <!-- <span class="nav-link">Customer Name: {% if customer_name %}{{ customer_name }}{% else %}<em>Not Set</em>{% endif %}</span> -->
                 <label class="switch">
                     <input hidden type="checkbox" id="darkModeSwitch">
                     <span class="slider round"></span>
@@ -224,6 +222,9 @@
                 currentPage = window.location.href.substring(window.location.href.indexOf("?"))
                 console.log(window.location.href.substring(window.location.href.lastIndexOf("/")+1,window.location.href.indexOf("?")))
             }
+            if(localStorage.getItem('customer_id')) {
+                localStorage.removeItem("customer_id");
+            }
         }
 
         // Add a script to set the active tab based on the current route
@@ -260,9 +261,13 @@
 
         // Function to check localStorage for customer_name and append it to the URL
         function appendCustomerNameToURL(link) {
-            const customerName = localStorage.getItem('customer_name');
-            if (customerName) {
-                link.href += `?customer_name=${customerName}`;
+            const customerID = localStorage.getItem('customer_id');
+            const accountID = localStorage.getItem('account_id');
+            if (customerID) {
+                link.href += `?customer_id=${customerID}`;
+            }
+            if (accountID) {
+                link.href += `&account_id=${accountID}`;
             }
         }
 

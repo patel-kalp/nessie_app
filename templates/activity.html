@@ -1,0 +1,211 @@
+{% extends "index.html" %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="card" style="margin-top: 50px;">
+            <div class="card-body">
+                <h1 class="card-title text-center" style="color:rgb(60, 115, 219)">Purchase History</h1>
+                <button id="reloadPurchaseButton" class="btn-primary btn-block" onclick="loadPurchaseHistory()">Reload Purchase History</button>
+                <table id="purchase_table" class="table">
+                    <thead style="background-color: darkgreen;">
+                        <tr>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Type</th>
+                            <th>Medium</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody id="purchaseTableBody" style="background-color: lightblue;">
+                        <!-- Table rows will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 50px;">
+            <div class="card-body">
+                <h1 class="card-title text-center" style="color:rgb(60, 115, 219)">Deposit History</h1>
+                <button id="reloadDepositButton" class="btn-primary btn-block" onclick="loadDepositHistory()">Reload Deposit History</button>
+                <table id="deposit_table" class="table">
+                    <thead style="background-color: darkgreen;">
+                        <tr>
+                            <th></th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Medium</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody id="depositTableBody" style="background-color: lightblue;">
+                        <!-- Table rows will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 50px;">
+            <div class="card-body">
+                <h1 class="card-title text-center" style="color:rgb(60, 115, 219)">Bills</h1>
+                <button id="reloadBillsButton" class="btn-primary btn-block" onclick="loadPurchaseHistory()">Reload Bills</button>
+                <table id="bills_table" class="table">
+                    <thead style="background-color: darkgreen;">
+                        <tr>
+                            <th>Status</th>
+                            <th>Payee</th>
+                            <th>Nickname</th>
+                            <th>Date</th>
+                            <th>Creation Date</th>
+                            <th>Recurring Date</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billsTableBody" style="background-color: lightblue;">
+                        <!-- Table rows will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // Function to load Account data on Reload action
+        function loadPurchaseHistory() {
+            if(localStorage.getItem('account_id')) { 
+                fetch(`http://api.nessieisreal.com/accounts/${localStorage.getItem('account_id')}/purchases?key={{api_key}}`)
+                    .then(response => response.json())
+                    .then(data => {
+                    // Update the table rows with new data
+                    const tbody = document.querySelector("#purchase_table tbody");
+                    tbody.innerHTML = ""; // Clear existing rows
+                    
+                    data.forEach(purchase => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${purchase.status}</td>
+                            <td>${purchase.purchase_date}</td>
+                            <td>${purchase.amount}</td>
+                            <td>${purchase.type}</td>
+                            <td>${purchase.medium}</td>
+                            <td>${purchase.description}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                    if(data.length === 0) {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td colspan="5" style="text-align: center; font-weight: bold;">The selected customer has no purchase history</td>
+                        `;
+                        tbody.appendChild(row);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                });
+            } else {
+                const tbody = document.querySelector("#purchase_table tbody");
+                tbody.innerHTML = ""; // Clear existing rows
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td colspan="5" style="text-align: center; font-weight: bold;">Please select a Customer</td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+
+        function loadDepositHistory() {
+            if(localStorage.getItem('account_id')) { 
+                fetch(`http://api.nessieisreal.com/accounts/${localStorage.getItem('account_id')}/deposits?key={{api_key}}`)
+                    .then(response => response.json())
+                    .then(data => {
+                    // Update the table rows with new data
+                    const tbody = document.querySelector("#deposit_table tbody");
+                    tbody.innerHTML = ""; // Clear existing rows
+                    console.log(data)
+                    data.forEach(deposit => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${deposit.type}</td>
+                            <td>${deposit.status}</td>
+                            <td>${deposit.transaction_date}</td>
+                            <td>${deposit.amount}</td>
+                            <td>${deposit.medium}</td>
+                            <td>${deposit.description}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                    if(data.length === 0) {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td colspan="5" style="text-align: center; font-weight: bold;">The selected customer has no deposit history</td>
+                        `;
+                        tbody.appendChild(row);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                });
+            } else {
+                const tbody = document.querySelector("#customers_table tbody");
+                tbody.innerHTML = ""; // Clear existing rows
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td colspan="5" style="text-align: center; font-weight: bold;">Please select a Customer</td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+
+        function loadBillsHistory() {
+            if(localStorage.getItem('account_id')) { 
+                fetch(`http://api.nessieisreal.com/accounts/${localStorage.getItem('account_id')}/bills?key={{api_key}}`)
+                    .then(response => response.json())
+                    .then(data => {
+                    // Update the table rows with new data
+                    const tbody = document.querySelector("#bills_table tbody");
+                    tbody.innerHTML = ""; // Clear existing rows
+                    console.log(data)
+                    data.forEach(bill => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${bill.status}</td>
+                            <td>${bill.payee}</td>
+                            <td>${bill.nickname}</td>
+                            <td>${bill.date}</td>
+                            <td>${bill.creation_date}</td>
+                            <td>${bill.recurring_date}</td>
+                            <td>${bill.amount}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                    if(data.length === 0) {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td colspan="5" style="text-align: center; font-weight: bold;">The selected customer has no bills</td>
+                        `;
+                        tbody.appendChild(row);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                });
+            } else {
+                const tbody = document.querySelector("#customers_table tbody");
+                tbody.innerHTML = ""; // Clear existing rows
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td colspan="5" style="text-align: center; font-weight: bold;">Please select a Customer</td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+
+        // Initially load activity data
+        loadPurchaseHistory();
+        loadDepositHistory();
+        loadBillsHistory();
+    </script>
+{% endblock %}

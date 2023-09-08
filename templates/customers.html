@@ -1,49 +1,62 @@
 {% extends "index.html" %}
 
 {% block content %}
-    <!-- <div class="text-center"> -->
-        <div class="container mt-4">
-            <div class="card">
-                <div class="card-body">
-                    <h1 class="card-title text-center" style="color:rgb(60, 115, 219)">Address Form</h1>
-                    <div class="error-message" id="errorMessage" style="margin: 20px;">Invalid State Abbreviation</div>
-                    <form id="addressForm" onsubmit="return validateForm(event)">
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name" required>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name" required>
-                            </div>
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title text-center" style="color:rgb(60, 115, 219)">Add Customer</h1>
+                <div class="error-message" id="errorMessage" style="margin: 20px;">Invalid State Abbreviation</div>
+                <form id="addressForm" onsubmit="return validateForm(event)">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name" required>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-4">
-                                <input type="text" class="form-control" id="streetNumber" name="streetNumber" placeholder="Street Number" required>
-                            </div>
-                            <div class="form-group col-md-8">
-                                <input type="text" class="form-control" id="streetName" name="streetName" placeholder="Street Name" required>
-                            </div>
+                        <div class="form-group col-md-6">
+                            <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name" required>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-4">
-                                <input type="text" class="form-control" id="city" name="city" placeholder="City" required>
-                            </div>
-                            <div class="form-group col-md-4">
-                                <input type="text" class="form-control" id="state" name="state" placeholder="State (e.g., FL, PA, VA)" required>
-                            </div>
-                            <div class="form-group col-md-4">
-                                <input type="text" class="form-control" id="zip" name="zip" placeholder="ZIP Code" required>
-                            </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <input type="text" class="form-control" id="streetNumber" name="streetNumber" placeholder="Street Number" required>
                         </div>
-                        <button type="submit" class="btn-primary btn-block">Submit</button>
-                    </form>
-                </div>
+                        <div class="form-group col-md-8">
+                            <input type="text" class="form-control" id="streetName" name="streetName" placeholder="Street Name" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <input type="text" class="form-control" id="city" name="city" placeholder="City" required>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <input type="text" class="form-control" id="state" name="state" placeholder="State (e.g., FL, PA, VA)" required>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <input type="text" class="form-control" id="zip" name="zip" placeholder="ZIP Code" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary btn-block">Submit</button>
+                </form>
             </div>
         </div>
-        
-        <!-- Add a button to set customer name to "John Doe" -->
-        <!-- <button class="btn btn-primary mt-3" onclick="setCustomerNameToJohnDoe()">Test</button> -->
-    <!-- </div> -->
+        <div class="card" style="margin-top: 50px;">
+            <div class="card-body">
+                <h1 class="card-title text-center" style="color:rgb(60, 115, 219)">All Customers</h1>
+                <button id="reloadCustomersBtn" class="btn-primary btn-block" onclick="loadCustomerData()">Reload Customers</button>
+                <table id="customers_table" class="table">
+                    <thead style="background-color: darkgreen;">
+                        <tr>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Address</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customersTableBody" style="background-color: lightblue;">
+                        <!-- Table rows will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <script>
         function validateForm(event) {
@@ -52,13 +65,11 @@
             const stateField = document.getElementById("state");
             const stateValue = stateField.value.trim().toUpperCase();
 
-            const validStateAbbreviations = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"];
-
             const zipField = document.getElementById("zip");
             const zipValue = zipField.value.trim();
 
-            if (!validStateAbbreviations.includes(stateValue)) {
-                stateField.setCustomValidity("Enter a valid state abbreviation");
+            if (stateValue.length !== 2 || !/^[A-Z]+$/.test(stateValue)) {
+                stateField.setCustomValidity("Enter a 2-letter state code");
                 stateField.style.animation = "jiggle 0.5s ease-in-out";
                 stateField.classList.add("custom-error");
                 stateField.focus();
@@ -72,7 +83,7 @@
                     stateField.style.animation = "none";
                     stateField.classList.remove("custom-error");
                     document.getElementById("errorMessage").style.display = "none";
-                }, 1000);
+                }, 5000);
 
                 return false;
             }
@@ -100,8 +111,9 @@
             }
 
             // Call the function to log form field values to the console
-            logFormValues();
             submitForm();
+
+            loadCustomerData(); // Reload Customers after Submission
 
             // Reset the form to clear all fields
             document.getElementById("addressForm").reset();
@@ -121,7 +133,6 @@
 
             // Construct the API URL with query parameters
             const apiUrl = `http://api.nessieisreal.com/customers?key={{api_key}}`;
-            console.log(apiUrl);
 
             // Construct the request body
             const requestBody = {
@@ -152,36 +163,18 @@
             .catch(error => {
                 console.error("Error making API request:", error);
             });
+
+            window.location.href = window.location.href;
         }
 
-        // Function to log form field values to the console
-        function logFormValues() {
-            const firstName = document.getElementById("firstName").value;
-            const lastName = document.getElementById("lastName").value;
-            const streetNumber = document.getElementById("streetNumber").value;
-            const streetName = document.getElementById("streetName").value;
-            const city = document.getElementById("city").value;
-            const state = document.getElementById("state").value;
-            const zip = document.getElementById("zip").value;
-
-            console.log("First Name:", firstName);
-            console.log("Last Name:", lastName);
-            console.log("Street Number:", streetNumber);
-            console.log("Street Name:", streetName);
-            console.log("City:", city);
-            console.log("State:", state);
-            console.log("ZIP Code:", zip);
-        }
-
-        // JavaScript function to set customer_name to "John Doe"
-        function setCustomerNameToJohnDoe() {
-            // Update the URL with the new customer_name
-            const newCustomerName = "Jake Doe";
+        function setCustomerNameInURL(first_name, last_name, customer_id) {
             // Store the customer_name in localStorage
-            localStorage.setItem('customer_name', newCustomerName);
-            // Append customer_name to the URL and navigate to the "ATMs" page
+            customer_name = first_name + " " + last_name;
+            localStorage.setItem('customer_name', customer_name);
+            localStorage.setItem('customer_id', customer_id)
+            // Append customer_name to the URL
             const currentURL = window.location.href;
-            const updatedURL = updateQueryStringParameter(currentURL, "customer_name", newCustomerName);
+            const updatedURL = updateQueryStringParameter(currentURL, "customer_id", customer_id);
             window.location.href = updatedURL;
         }
 
@@ -195,5 +188,32 @@
                 return uri + separator + key + "=" + value;
             }
         }
+
+        // Function to load Customer data on Reload action
+        function loadCustomerData() {
+            fetch(`http://api.nessieisreal.com/customers?key={{api_key}}`)
+                .then(response => response.json())
+                .then(data => {
+                // Update the table rows with new data
+                const tbody = document.querySelector("#customers_table tbody");
+                tbody.innerHTML = ""; // Clear existing rows
+                
+                data.forEach(customer => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td><button type="button" onclick="setCustomerNameInURL('${customer.first_name}', '${customer.last_name}', '${customer._id}')" class="btn-primary"> Select </button></td>
+                        <td>${customer.first_name} ${customer.last_name}</td>
+                        <td>${customer.address.street_number} ${customer.address.street_name}, ${customer.address.city}, ${customer.address.state} ${customer.address.zip}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+            });
+        }
+
+        // Initially load customer data
+        loadCustomerData();
     </script>
 {% endblock %}

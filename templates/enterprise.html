@@ -1,8 +1,19 @@
 {% extends "index.html" %}
 
 {% block content %}
-    <div class="text-center">
-        <h2>Enterprise</h2>
-        <p>Under development</p>
+    <div class="card">
+        <div class="card-body">
+            <h1 class="card-title text-center" style="color:rgb(60, 115, 219)">View Enterprise Customer</h1>
+            <form id="enterpriseForm" onsubmit="return validateForm(event)">
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <input type="text" class="form-control" id="customerID" name="customerID" placeholder="Customer ID" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary btn-block">Submit</button>
+            </form>
+        </div>
     </div>
+
+
 {% endblock %}

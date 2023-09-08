@@ -1,8 +1,202 @@
 {% extends "index.html" %}
 
 {% block content %}
-    <div class="text-center">
-        <h2>Accounts</h2>
-        <p>Under development</p>
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title text-center" style="color:rgb(60, 115, 219)">Add Account</h1>
+                <form id="accountForm" onsubmit="return validateForm(event)">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <input type="text" class="form-control" id="accountType" name="accountType" placeholder="Account Type (Checking / Savings / Credit Card)" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <input type="text" class="form-control" id="nickname" name="nickname" placeholder="Nickname" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <input type="text" class="form-control" id="balance" name="balance" placeholder="Balance" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <input type="text" class="form-control" id="rewards" name="rewards" placeholder="Rewards" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary btn-block">Submit</button>
+                </form>
+            </div>
+        </div>
+        <div class="card" style="margin-top: 50px;">
+            <div class="card-body">
+                <h1 class="card-title text-center" style="color:rgb(60, 115, 219)">All Accounts</h1>
+                <button id="reloadCustomersBtn" class="btn-primary btn-block" onclick="loadAccountData()">Reload Accounts</button>
+                <table id="customers_table" class="table">
+                    <thead style="background-color: darkgreen;">
+                        <tr>
+                            <th></th>
+                            <th>Nickname</th>
+                            <th>Type</th>
+                            <th>Balance</th>
+                            <th>Rewards</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="customersTableBody" style="background-color: lightblue;">
+                        <!-- Table rows will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
+
+
+    <script>
+        function validateForm(event) {
+            event.preventDefault(); // Prevent the default form submission behavior
+
+            // Call the function to log form field values to the console
+            submitForm();
+
+            // Reset the form to clear all fields
+            document.getElementById("accountForm").reset();
+
+            return true;
+        }
+
+        function submitForm() {
+            // Get the form input values
+            const nickname = document.getElementById("nickname").value;
+            const accountType = document.getElementById("accountType").value;
+            const balance = document.getElementById("balance").value;
+            const rewards = document.getElementById("rewards").value;
+
+            // Construct the API URL with query parameters
+            const apiUrl = `http://api.nessieisreal.com/customers/${localStorage.getItem('customer_id')}/accounts?key={{api_key}}`;
+
+            // Construct the request body
+            const requestBody = {
+                type: accountType,
+                nickname: nickname,
+                rewards: parseInt(rewards),
+                balance: parseInt(balance)
+            };
+
+            // Make the API POST request
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle Errors
+                if (data.code == 400) { alert(data.message + "(" + data.culprit.join(', ') + ")"); }
+                else {
+                    // Handle the API response data here
+                    console.log("API Response:", data);
+                }
+            })
+            .catch(error => {
+                console.error("Error making API request:", error);
+            });
+
+            window.location.href = window.location.href;
+        }
+
+        function setAccountIDInURL(account_id) {
+            // Store the customer_name in localStorage
+            localStorage.setItem('account_id', account_id)
+            // Append customer_name to the URL
+            const currentURL = window.location.href;
+            const updatedURL = updateQueryStringParameter(currentURL, "account_id", account_id);
+            window.location.href = updatedURL;
+        }
+
+        // Function to update a query string parameter in the URL
+        function updateQueryStringParameter(uri, key, value) {
+            const re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+            const separator = uri.indexOf("?") !== -1 ? "&" : "?";
+            if (uri.match(re)) {
+                return uri.replace(re, "$1" + key + "=" + value + "$2");
+            } else {
+                return uri + separator + key + "=" + value;
+            }
+        }
+
+        function deleteAccount(account_id) {
+            console.log(account_id);
+            const apiUrl = `http://api.nessieisreal.com/accounts/${account_id}?key={{api_key}}`;
+
+            // Define the DELETE request options
+            const requestOptions = {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            // DELETE request
+            fetch(apiUrl, requestOptions)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error | Status: ${response.status}`);
+                    }
+                    console.log('DELETE request successful');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            
+            window.location.href = window.location.href;
+        }
+
+        // Function to load Account data on Reload action
+        function loadAccountData() {
+            if(localStorage.getItem('customer_id')) { 
+                fetch(`http://api.nessieisreal.com/customers/${localStorage.getItem('customer_id')}/accounts?key={{api_key}}`)
+                    .then(response => response.json())
+                    .then(data => {
+                    // Update the table rows with new data
+                    const tbody = document.querySelector("#customers_table tbody");
+                    tbody.innerHTML = ""; // Clear existing rows
+                    
+                    data.forEach(account => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td><button type="button" onclick="setAccountIDInURL('${account._id}')" class="btn-primary"> Select </button></td>
+                            <td>${account.nickname}</td>
+                            <td>${account.type}</td>
+                            <td>${account.balance}</td>
+                            <td>${account.rewards}</td>
+                            <td><button type="button" onclick="deleteAccount('${account._id}')" class="btn-danger"> Delete </button></td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                    if(data.length === 0) {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td colspan="5" style="text-align: center; font-weight: bold;">The selected customer has no accounts</td>
+                        `;
+                        tbody.appendChild(row);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                });
+            } else {
+                const tbody = document.querySelector("#customers_table tbody");
+                tbody.innerHTML = ""; // Clear existing rows
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td colspan="5" style="text-align: center; font-weight: bold;">Please select a Customer</td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+
+        // Initially load customer data
+        loadAccountData();
+    </script>
 {% endblock %}
