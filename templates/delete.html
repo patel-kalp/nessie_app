@@ -1,0 +1,78 @@
+{% extends "index.html" %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-body">
+            <h1 class="card-title text-center" style="color:rgb(60, 115, 219)">Please select the attribute to delete</h1>
+            <div class="mb-3">
+                <label for="dropdownSelect" class="form-label">Select an option:</label>
+                <select class="custom-dropdown" id="dropdownSelect">
+                    <option value="blank"></option>
+                    <option value="Customers">Customers</option>
+                    <option value="Accounts">Accounts</option>
+                    <option value="Bills">Bills</option>
+                    <option value="Deposits">Deposits</option>
+                    <option value="Purchases">Purchases</option>
+                </select>
+            </div>
+            <button id="submitDelete" type="submit" class="btn-primary btn-block" disabled  style="cursor: not-allowed;" onclick="deleteAllData()">Submit</button>
+        </div>
+    </div>
+    <script>
+        const dropdownSelect = document.getElementById("dropdownSelect");
+
+        dropdownSelect.addEventListener("change", () => {
+            if(dropdownSelect.value == "blank") {
+                document.getElementById("submitDelete").disabled = true;
+                document.getElementById("submitDelete").style.cursor = "not-allowed";
+            } else {
+                document.getElementById("submitDelete").disabled = false;
+                document.getElementById("submitDelete").style.cursor = "pointer";
+            }
+        });
+
+        function removeCustomerSelection() {
+            if(localStorage.getItem('customer_name')) {
+                localStorage.removeItem("customer_name");
+                localStorage.removeItem("customer_id");
+                localStorage.removeItem("account_id");
+                document.getElementById('curr_customer_div').style.backgroundColor = "";
+                currentPage = window.location.href.substring(window.location.href.indexOf("/"), window.location.href.indexOf("?"))
+            }
+        }
+
+        function deleteAllData() {
+            const delete_attribute = document.getElementById("dropdownSelect").value;
+            const apiUrl = `http://api.nessieisreal.com/data?type=${delete_attribute}&key={{api_key}}`;
+            console.log(apiUrl)
+            // Define the DELETE request options
+            const requestOptions = {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            // DELETE request
+            fetch(apiUrl, requestOptions)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error | Status: ${response.status}`);
+                    }
+                    console.log('DELETE request successful');
+                })
+                .catch(error => {
+                    // Check if the error message is related to a network issue
+                    if (error.message === "Failed to fetch") {
+                        console.warn("Network issue occurred, but the request may have still succeeded.");
+                    } else {
+                        console.error('Error:', error);
+                    }
+                });
+            
+                removeCustomerSelection();
+            
+            window.location.href = window.location.href;
+        }
+    </script>
+{% endblock %}

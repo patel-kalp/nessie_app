@@ -165,6 +165,27 @@
             border-radius: 5px;
             display: none;
         }
+
+        .custom-dropdown {
+            width: 100%; 
+            padding: 0.375rem 1.75rem 0.375rem 0.75rem;
+            border: 1px solid #ced4da; 
+            border-radius: 0.25rem; 
+            background-color: #fff; 
+            color: #495057;
+        }
+
+        /* Style the dropdown arrow */
+        .custom-dropdown::after {
+            content: "";
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #000; 
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+        }
     </style>
 </head>
 <body>
@@ -178,7 +199,8 @@
             <li class="nav-item"><a class="nav-link" href="/customers{% if customer_id %}?customer_id={{ customer_id }}{% endif %}{% if account_id %}?account_id={{ account_id }}{% endif %}">Customers</a></li>
             <li class="nav-item"><a class="nav-link" href="/accounts{% if customer_id %}?customer_id={{ customer_id }}{% endif %}{% if account_id %}?account_id={{ account_id }}{% endif %}">Accounts</a></li>
             <li class="nav-item"><a class="nav-link" href="/activity{% if customer_id %}?customer_id={{ customer_id }}{% endif %}{% if account_id %}?account_id={{ account_id }}{% endif %}">Activity</a></li>
-            <li class="nav-item"><a class="nav-link" href="/enterprise">Enterprise</a></li>
+            <li class="nav-item"><a class="nav-link" href="/enterprise{% if customer_id %}?customer_id={{ customer_id }}{% endif %}{% if account_id %}?account_id={{ account_id }}{% endif %}">Enterprise</a></li>
+            <li class="nav-item"><a class="nav-link" href="/delete{% if customer_id %}?customer_id={{ customer_id }}{% endif %}{% if account_id %}?account_id={{ account_id }}{% endif %}">Delete</a></li>
         </ul>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
@@ -218,12 +240,10 @@
         function removeCustomerSelection() {
             if(localStorage.getItem('customer_name')) {
                 localStorage.removeItem("customer_name");
-                document.getElementById('curr_customer_div').style.backgroundColor = "";
-                currentPage = window.location.href.substring(window.location.href.indexOf("?"))
-                console.log(window.location.href.substring(window.location.href.lastIndexOf("/")+1,window.location.href.indexOf("?")))
-            }
-            if(localStorage.getItem('customer_id')) {
                 localStorage.removeItem("customer_id");
+                localStorage.removeItem("account_id");
+                document.getElementById('curr_customer_div').style.backgroundColor = "";
+                currentPage = window.location.href.substring(window.location.href.indexOf("/"), window.location.href.indexOf("?"))
             }
         }
 

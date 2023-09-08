@@ -97,7 +97,7 @@
                     if(data.length === 0) {
                         const row = document.createElement("tr");
                         row.innerHTML = `
-                            <td colspan="5" style="text-align: center; font-weight: bold;">The selected customer has no purchase history</td>
+                            <td colspan="6" style="text-align: center; font-weight: bold;">The selected customer has no purchase history</td>
                         `;
                         tbody.appendChild(row);
                     }
@@ -110,7 +110,7 @@
                 tbody.innerHTML = ""; // Clear existing rows
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td colspan="5" style="text-align: center; font-weight: bold;">Please select a Customer</td>
+                    <td colspan="6" style="text-align: center; font-weight: bold;">Please select a Customer</td>
                 `;
                 tbody.appendChild(row);
             }
@@ -140,7 +140,7 @@
                     if(data.length === 0) {
                         const row = document.createElement("tr");
                         row.innerHTML = `
-                            <td colspan="5" style="text-align: center; font-weight: bold;">The selected customer has no deposit history</td>
+                            <td colspan="6" style="text-align: center; font-weight: bold;">The selected customer has no deposit history</td>
                         `;
                         tbody.appendChild(row);
                     }
@@ -149,11 +149,11 @@
                     console.error("Error fetching data:", error);
                 });
             } else {
-                const tbody = document.querySelector("#customers_table tbody");
+                const tbody = document.querySelector("#deposit_table tbody");
                 tbody.innerHTML = ""; // Clear existing rows
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td colspan="5" style="text-align: center; font-weight: bold;">Please select a Customer</td>
+                    <td colspan="6" style="text-align: center; font-weight: bold;">Please select a Customer</td>
                 `;
                 tbody.appendChild(row);
             }
@@ -184,7 +184,7 @@
                     if(data.length === 0) {
                         const row = document.createElement("tr");
                         row.innerHTML = `
-                            <td colspan="5" style="text-align: center; font-weight: bold;">The selected customer has no bills</td>
+                            <td colspan="7" style="text-align: center; font-weight: bold;">The selected customer has no bills</td>
                         `;
                         tbody.appendChild(row);
                     }
@@ -193,11 +193,11 @@
                     console.error("Error fetching data:", error);
                 });
             } else {
-                const tbody = document.querySelector("#customers_table tbody");
+                const tbody = document.querySelector("#bills_table tbody");
                 tbody.innerHTML = ""; // Clear existing rows
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td colspan="5" style="text-align: center; font-weight: bold;">Please select a Customer</td>
+                    <td colspan="7" style="text-align: center; font-weight: bold;">Please select a Customer</td>
                 `;
                 tbody.appendChild(row);
             }

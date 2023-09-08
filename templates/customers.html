@@ -149,20 +149,20 @@
 
             // Make the API POST request
             fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestBody)
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Handle the API response data here
-                console.log("API Response:", data);
-            })
-            .catch(error => {
-                console.error("Error making API request:", error);
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Handle the API response data here
+                    console.log("API Response:", data);
+                })
+                .catch(error => {
+                    console.error("Error making API request:", error);
+                });
 
             window.location.href = window.location.href;
         }

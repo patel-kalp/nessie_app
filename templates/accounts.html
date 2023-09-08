@@ -154,7 +154,7 @@
 
         // Function to load Account data on Reload action
         function loadAccountData() {
-            if(localStorage.getItem('customer_id')) { 
+            if(localStorage.getItem('customer_id')) {
                 fetch(`http://api.nessieisreal.com/customers/${localStorage.getItem('customer_id')}/accounts?key={{api_key}}`)
                     .then(response => response.json())
                     .then(data => {
@@ -173,11 +173,11 @@
                             <td><button type="button" onclick="deleteAccount('${account._id}')" class="btn-danger"> Delete </button></td>
                         `;
                         tbody.appendChild(row);
-                    });
+                    })
                     if(data.length === 0) {
                         const row = document.createElement("tr");
                         row.innerHTML = `
-                            <td colspan="5" style="text-align: center; font-weight: bold;">The selected customer has no accounts</td>
+                            <td colspan="6" style="text-align: center; font-weight: bold;">The selected customer has no accounts</td>
                         `;
                         tbody.appendChild(row);
                     }
@@ -190,7 +190,7 @@
                 tbody.innerHTML = ""; // Clear existing rows
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td colspan="5" style="text-align: center; font-weight: bold;">Please select a Customer</td>
+                    <td colspan="6" style="text-align: center; font-weight: bold;">Please select a Customer</td>
                 `;
                 tbody.appendChild(row);
             }
